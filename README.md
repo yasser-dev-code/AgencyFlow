@@ -22,13 +22,57 @@ It is built as a practical full-stack portfolio project: a React + Vite frontend
 - **Bilingual UI** — French (default) and English, with a persistent language switcher.
 - **Responsive design** — desktop, tablet, and mobile layouts.
 
-## Screenshots
+## Application Screenshots
 
-> Placeholders — replace with real screenshots once the app is running.
+Real screenshots of the running application, captured at a 1440 × 900 desktop viewport with fictional demonstration data.
 
-| Dashboard | Clients | Tasks |
-| --- | --- | --- |
-| _coming soon_ | _coming soon_ | _coming soon_ |
+### Login
+
+Bilingual sign-in screen (French by default) with JWT session authentication in an HTTP-only cookie.
+
+![Login page](docs/screenshots/login.png)
+
+### Dashboard
+
+Live statistics pulled from PostgreSQL — clients, active campaigns, completed / pending / overdue tasks and employees — with Recharts visualisations, recent clients and recent task activity.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Clients
+
+Client directory with search, status filtering and full CRUD.
+
+![Clients page](docs/screenshots/clients.png)
+
+### Campaigns
+
+Marketing campaigns across platforms with budget, start/end dates and status.
+
+![Campaigns page](docs/screenshots/campaigns.png)
+
+### Tasks
+
+Task list with priorities, due dates, overdue highlighting, employee assignment and inline status updates.
+
+![Tasks page](docs/screenshots/tasks.png)
+
+### Employees
+
+Admin-managed team members with roles and assigned-task counts.
+
+![Employees page](docs/screenshots/employees.png)
+
+### Settings
+
+Profile update, password change and interface language preferences.
+
+![Settings page](docs/screenshots/settings.png)
+
+### Client form
+
+The create/edit client modal, demonstrating form validation and the reusable UI components.
+
+![Client form](docs/screenshots/client-form.png)
 
 ## Technology stack
 

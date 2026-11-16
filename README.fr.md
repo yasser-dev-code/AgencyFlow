@@ -22,13 +22,57 @@ Il s'agit d'un projet full-stack pensé pour un portfolio : un frontend React + 
 - **Interface bilingue** — français (par défaut) et anglais, avec un sélecteur de langue persistant.
 - **Design responsive** — ordinateurs, tablettes et mobiles.
 
-## Captures d'écran
+## Captures d'écran de l'application
 
-> Espaces réservés — à remplacer par de vraies captures une fois l'application lancée.
+Véritables captures de l'application en fonctionnement, prises sur un viewport bureau de 1440 × 900 avec des données de démonstration fictives.
 
-| Tableau de bord | Clients | Tâches |
-| --- | --- | --- |
-| _bientôt_ | _bientôt_ | _bientôt_ |
+### Connexion
+
+Écran de connexion bilingue (français par défaut) avec authentification par session JWT dans un cookie HTTP-only.
+
+![Page de connexion](docs/screenshots/login.png)
+
+### Tableau de bord
+
+Statistiques réelles issues de PostgreSQL — clients, campagnes actives, tâches terminées / en attente / en retard et employés — avec des visualisations Recharts, les clients récents et l'activité récente des tâches.
+
+![Tableau de bord](docs/screenshots/dashboard.png)
+
+### Clients
+
+Annuaire des clients avec recherche, filtre par statut et CRUD complet.
+
+![Page clients](docs/screenshots/clients.png)
+
+### Campagnes
+
+Campagnes marketing multi-plateformes avec budget, dates de début/fin et statut.
+
+![Page campagnes](docs/screenshots/campaigns.png)
+
+### Tâches
+
+Liste des tâches avec priorités, échéances, mise en évidence des retards, assignation aux employés et mise à jour du statut en ligne.
+
+![Page tâches](docs/screenshots/tasks.png)
+
+### Employés
+
+Membres de l'équipe gérés par l'administrateur, avec rôles et nombre de tâches assignées.
+
+![Page employés](docs/screenshots/employees.png)
+
+### Paramètres
+
+Mise à jour du profil, changement du mot de passe et préférences de langue de l'interface.
+
+![Page paramètres](docs/screenshots/settings.png)
+
+### Formulaire client
+
+La modale de création/modification d'un client, illustrant la validation des formulaires et les composants UI réutilisables.
+
+![Formulaire client](docs/screenshots/client-form.png)
 
 ## Stack technique
 
