@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { authApi } from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { PageHeader, Button, Card } from '../components/ui/Primitives';
 import { Field, TextInput, Select } from '../components/ui/Form';
 
 export default function Settings() {
   const { t, language, setLanguage, languages } = useLanguage();
   const { user, setUser } = useAuth();
+  const toast = useToast();
 
   const [name, setName] = useState(user?.name || '');
   const [profileMsg, setProfileMsg] = useState('');
@@ -26,8 +28,10 @@ export default function Settings() {
       const data = await authApi.updateProfile({ name });
       setUser(data?.user ?? null);
       setProfileMsg(t('common.saved'));
+      toast.success(t('common.saved'));
     } catch {
       setProfileMsg(t('errors.generic'));
+      toast.error(t('errors.generic'));
     } finally {
       setProfileSaving(false);
     }
@@ -42,8 +46,10 @@ export default function Settings() {
       await authApi.changePassword(pw);
       setPw({ currentPassword: '', newPassword: '' });
       setPwMsg(t('settings.passwordUpdated'));
+      toast.success(t('settings.passwordUpdated'));
     } catch (err) {
       setPwError(err?.response?.data?.message || t('errors.generic'));
+      toast.error(err?.response?.data?.message || t('errors.generic'));
     } finally {
       setPwSaving(false);
     }

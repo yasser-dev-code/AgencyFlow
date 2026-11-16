@@ -2,7 +2,8 @@ import { ZodError } from 'zod';
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/http.js';
 
-// Centralized error handler. Always returns the same JSON envelope.
+// Centralized error handler. Always returns the same JSON envelope and never
+// leaks stack traces or internal details to the client.
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
   if (err instanceof ZodError) {
@@ -21,18 +22,24 @@ export function errorHandler(err, req, res, next) {
     });
   }
 
-  // Prisma known request errors
-  if (err?.code === 'P2002') {
-    return res.status(409).json({ success: false, message: 'A record with this value already exists.' });
-  }
-  if (err?.code === 'P2025') {
-    return res.status(404).json({ success: false, message: 'Record not found.' });
+  // Prisma known request errors -> friendly HTTP responses.
+  switch (err?.code) {
+    case 'P2002':
+      return res.status(409).json({ success: false, message: 'A record with this value already exists.' });
+    case 'P2003':
+      return res.status(400).json({ success: false, message: 'A related record does not exist.' });
+    case 'P2025':
+      return res.status(404).json({ success: false, message: 'Record not found.' });
+    default:
+      break;
   }
 
-  console.error('Unhandled error:', err);
-  return res.status(500).json({
+  const status = Number.isInteger(err?.status) ? err.status : 500;
+  if (status >= 500) console.error('Unhandled error:', err);
+
+  return res.status(status).json({
     success: false,
-    message: env.isProduction ? 'Internal server error.' : err.message || 'Internal server error.'
+    message: status >= 500 && env.isProduction ? 'Internal server error.' : err?.message || 'Internal server error.'
   });
 }
 

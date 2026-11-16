@@ -21,11 +21,15 @@ function scopeWhere(user, extra = {}) {
 }
 
 export const listTasks = asyncHandler(async (req, res) => {
-  const { status, priority, campaignId } = req.query;
+  const { status, priority, campaignId, overdue } = req.query;
   const extra = {};
   if (status) extra.status = status;
   if (priority) extra.priority = priority;
   if (campaignId) extra.campaignId = campaignId;
+  if (overdue === 'true') {
+    extra.dueDate = { lt: new Date() };
+    extra.status = { not: 'COMPLETED' };
+  }
 
   const tasks = await prisma.task.findMany({
     where: scopeWhere(req.user, extra),
@@ -63,7 +67,6 @@ export const createTask = asyncHandler(async (req, res) => {
 
 async function assertCanModify(user, task) {
   if (user.role === 'ADMIN') return;
-  // Employees may only update the status of tasks assigned to them.
   if (task.assignedToId !== user.id) {
     throw new ApiError(403, 'You can only update tasks assigned to you.');
   }
@@ -76,10 +79,9 @@ export const updateTask = asyncHandler(async (req, res) => {
 
   const body = req.body;
   if (req.user.role !== 'ADMIN') {
-    // Restrict employees to status-only updates.
-    const allowed = ['status'];
+    // Employees may only update the status of their own tasks.
     const keys = Object.keys(body);
-    if (keys.some((k) => !allowed.includes(k))) {
+    if (keys.some((k) => k !== 'status')) {
       throw new ApiError(403, 'Employees may only update task status.');
     }
   }

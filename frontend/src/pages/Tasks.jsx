@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckSquare, AlertTriangle } from 'lucide-react';
 import { tasksApi, employeesApi, campaignsApi } from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { PageHeader, Button, Card, Badge, statusTone, EmptyState, Spinner } from '../components/ui/Primitives';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { Field, TextInput, Textarea, Select } from '../components/ui/Form';
@@ -11,16 +12,20 @@ const EMPTY = { title: '', description: '', status: 'TODO', priority: 'MEDIUM', 
 const STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'];
 const toDateInput = (value) => (value ? value.slice(0, 10) : '');
+const isOverdue = (task) =>
+  !!task.dueDate && task.status !== 'COMPLETED' && new Date(task.dueDate) < new Date();
 
 export default function Tasks() {
   const { t } = useLanguage();
   const { isAdmin } = useAuth();
+  const toast = useToast();
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
+  const [overdueOnly, setOverdueOnly] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -33,7 +38,9 @@ export default function Tasks() {
     setLoading(true);
     setError('');
     try {
-      const params = status ? { status } : {};
+      const params = {};
+      if (status) params.status = status;
+      if (overdueOnly) params.overdue = 'true';
       const data = await tasksApi.list(params);
       setTasks(data);
       if (isAdmin) {
@@ -46,7 +53,7 @@ export default function Tasks() {
     } finally {
       setLoading(false);
     }
-  }, [status, isAdmin, t]);
+  }, [status, overdueOnly, isAdmin, t]);
 
   useEffect(() => {
     load();
@@ -84,23 +91,26 @@ export default function Tasks() {
       if (editing) await tasksApi.update(editing.id, form);
       else await tasksApi.create(form);
       setModalOpen(false);
+      toast.success(editing ? t('common.updated') : t('common.created'));
       await load();
     } catch (err) {
-      setFormError(err?.response?.data?.message || t('errors.generic'));
+      const message = err?.response?.data?.message || t('errors.generic');
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
   }
 
-  // Inline status change - allowed for admins and for the assigned employee.
   async function changeStatus(task, nextStatus) {
     const previous = task.status;
     setTasks((list) => list.map((item) => (item.id === task.id ? { ...item, status: nextStatus } : item)));
     try {
       await tasksApi.update(task.id, { status: nextStatus });
+      toast.success(t('common.statusUpdated'));
     } catch {
       setTasks((list) => list.map((item) => (item.id === task.id ? { ...item, status: previous } : item)));
-      setError(t('errors.generic'));
+      toast.error(t('errors.generic'));
     }
   }
 
@@ -109,9 +119,10 @@ export default function Tasks() {
     try {
       await tasksApi.remove(deleteTarget.id);
       setDeleteTarget(null);
+      toast.success(t('common.deleted'));
       await load();
     } catch {
-      setError(t('errors.generic'));
+      toast.error(t('errors.generic'));
     } finally {
       setDeleting(false);
     }
@@ -121,7 +132,7 @@ export default function Tasks() {
     <div>
       <PageHeader
         title={t('tasks.title')}
-        subtitle={isAdmin ? t('tasks.subtitle') : t('tasks.subtitle')}
+        subtitle={t('tasks.subtitle')}
         action={
           isAdmin && (
             <Button onClick={openCreate}>
@@ -141,6 +152,16 @@ export default function Tasks() {
             </option>
           ))}
         </Select>
+        <label className="ml-auto inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-600">
+          <input
+            type="checkbox"
+            checked={overdueOnly}
+            onChange={(e) => setOverdueOnly(e.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+          />
+          <AlertTriangle className="h-4 w-4 text-rose-500" />
+          {t('tasks.overdueOnly')}
+        </label>
       </Card>
 
       {error && <p className="mb-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
@@ -150,7 +171,7 @@ export default function Tasks() {
           <Spinner className="h-7 w-7" />
         </div>
       ) : tasks.length === 0 ? (
-        <EmptyState message={t('tasks.empty')} />
+        <EmptyState message={t('tasks.empty')} icon={CheckSquare} />
       ) : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
@@ -176,7 +197,12 @@ export default function Tasks() {
                     <td className="px-4 py-3">
                       <Badge tone={statusTone(task.priority)}>{t(`tasks.priorityLabel.${task.priority}`)}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{toDateInput(task.dueDate) || '—'}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-2 text-slate-600">
+                        {toDateInput(task.dueDate) || '—'}
+                        {isOverdue(task) && <Badge tone="red">{t('common.overdue')}</Badge>}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-slate-600">{task.assignedTo?.name || t('tasks.unassigned')}</td>
                     <td className="px-4 py-3 text-slate-600">{task.campaign?.name || t('tasks.noCampaign')}</td>
                     <td className="px-4 py-3">
@@ -259,7 +285,7 @@ export default function Tasks() {
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('tasks.assignedTo')}>
-              <Select value={form.assignedToId} onChange={update('assignedToId')}>
+              <Select value={form.assignedToId} onChange={update('assignedToId')} disabled={!isAdmin}>
                 <option value="">{t('tasks.unassigned')}</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
@@ -269,7 +295,7 @@ export default function Tasks() {
               </Select>
             </Field>
             <Field label={t('tasks.campaign')}>
-              <Select value={form.campaignId} onChange={update('campaignId')}>
+              <Select value={form.campaignId} onChange={update('campaignId')} disabled={!isAdmin}>
                 <option value="">{t('tasks.noCampaign')}</option>
                 {campaigns.map((c) => (
                   <option key={c.id} value={c.id}>

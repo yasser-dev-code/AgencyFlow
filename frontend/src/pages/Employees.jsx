@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCog } from 'lucide-react';
 import { employeesApi } from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { PageHeader, Button, Card, Badge, statusTone, EmptyState, Spinner } from '../components/ui/Primitives';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { Field, TextInput, Select } from '../components/ui/Form';
@@ -11,6 +12,7 @@ const ROLES = ['ADMIN', 'EMPLOYEE'];
 
 export default function Employees() {
   const { t } = useLanguage();
+  const toast = useToast();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -60,14 +62,16 @@ export default function Employees() {
     setFormError('');
     try {
       const payload = { ...form };
-      // Never send an empty password when editing (means "keep current").
       if (editing && !payload.password) delete payload.password;
       if (editing) await employeesApi.update(editing.id, payload);
       else await employeesApi.create(payload);
       setModalOpen(false);
+      toast.success(editing ? t('common.updated') : t('common.created'));
       await load();
     } catch (err) {
-      setFormError(err?.response?.data?.message || t('errors.generic'));
+      const message = err?.response?.data?.message || t('errors.generic');
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -78,9 +82,12 @@ export default function Employees() {
     try {
       await employeesApi.remove(deleteTarget.id);
       setDeleteTarget(null);
+      toast.success(t('common.deleted'));
       await load();
     } catch (err) {
-      setError(err?.response?.data?.message || t('errors.generic'));
+      const message = err?.response?.data?.message || t('errors.generic');
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
@@ -105,7 +112,7 @@ export default function Employees() {
           <Spinner className="h-7 w-7" />
         </div>
       ) : employees.length === 0 ? (
-        <EmptyState message={t('employees.empty')} />
+        <EmptyState message={t('employees.empty')} icon={UserCog} />
       ) : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">

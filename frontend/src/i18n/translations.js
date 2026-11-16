@@ -24,7 +24,12 @@ export const translations = {
       saved: 'Modifications enregistrées.',
       somethingWrong: 'Une erreur est survenue.',
       optional: 'facultatif',
-      none: 'Aucun'
+      none: 'Aucun',
+      created: 'Créé avec succès.',
+      updated: 'Mis à jour avec succès.',
+      deleted: 'Supprimé avec succès.',
+      statusUpdated: 'Statut mis à jour.',
+      overdue: 'En retard'
     },
     nav: {
       dashboard: 'Tableau de bord',
@@ -58,6 +63,9 @@ export const translations = {
       campaignsByStatus: 'Campagnes par statut',
       tasksByPriority: 'Tâches par priorité',
       recentClients: 'Clients récents',
+      recentTasks: 'Tâches récentes',
+      overdueTasks: 'Tâches en retard',
+      recentActivity: 'Activité récente',
       noData: 'Aucune donnée à afficher.'
     },
     clients: {
@@ -109,6 +117,7 @@ export const translations = {
       empty: 'Aucune tâche pour le moment.',
       unassigned: 'Non assignée',
       noCampaign: 'Aucune campagne',
+      overdueOnly: 'En retard uniquement',
       statusLabel: { TODO: 'À faire', IN_PROGRESS: 'En cours', COMPLETED: 'Terminée' },
       priorityLabel: { LOW: 'Basse', MEDIUM: 'Moyenne', HIGH: 'Haute' }
     },
@@ -183,7 +192,12 @@ export const translations = {
       saved: 'Changes saved.',
       somethingWrong: 'Something went wrong.',
       optional: 'optional',
-      none: 'None'
+      none: 'None',
+      created: 'Created successfully.',
+      updated: 'Updated successfully.',
+      deleted: 'Deleted successfully.',
+      statusUpdated: 'Status updated.',
+      overdue: 'Overdue'
     },
     nav: {
       dashboard: 'Dashboard',
@@ -217,6 +231,9 @@ export const translations = {
       campaignsByStatus: 'Campaigns by status',
       tasksByPriority: 'Tasks by priority',
       recentClients: 'Recent clients',
+      recentTasks: 'Recent tasks',
+      overdueTasks: 'Overdue tasks',
+      recentActivity: 'Recent activity',
       noData: 'No data to display.'
     },
     clients: {
@@ -268,6 +285,7 @@ export const translations = {
       empty: 'No tasks yet.',
       unassigned: 'Unassigned',
       noCampaign: 'No campaign',
+      overdueOnly: 'Overdue only',
       statusLabel: { TODO: 'To do', IN_PROGRESS: 'In progress', COMPLETED: 'Completed' },
       priorityLabel: { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
     },

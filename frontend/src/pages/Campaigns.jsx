@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Megaphone } from 'lucide-react';
 import { campaignsApi, clientsApi } from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { PageHeader, Button, Card, Badge, statusTone, EmptyState, Spinner } from '../components/ui/Primitives';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { Field, TextInput, Select } from '../components/ui/Form';
@@ -15,6 +16,7 @@ const toDateInput = (value) => (value ? value.slice(0, 10) : '');
 export default function Campaigns() {
   const { t } = useLanguage();
   const { isAdmin } = useAuth();
+  const toast = useToast();
   const [campaigns, setCampaigns] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,9 +86,12 @@ export default function Campaigns() {
       if (editing) await campaignsApi.update(editing.id, payload);
       else await campaignsApi.create(payload);
       setModalOpen(false);
+      toast.success(editing ? t('common.updated') : t('common.created'));
       await load();
     } catch (err) {
-      setFormError(err?.response?.data?.message || t('errors.generic'));
+      const message = err?.response?.data?.message || t('errors.generic');
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -97,9 +102,11 @@ export default function Campaigns() {
     try {
       await campaignsApi.remove(deleteTarget.id);
       setDeleteTarget(null);
+      toast.success(t('common.deleted'));
       await load();
     } catch {
       setError(t('errors.generic'));
+      toast.error(t('errors.generic'));
     } finally {
       setDeleting(false);
     }
@@ -141,7 +148,7 @@ export default function Campaigns() {
           <Spinner className="h-7 w-7" />
         </div>
       ) : campaigns.length === 0 ? (
-        <EmptyState message={t('campaigns.empty')} />
+        <EmptyState message={t('campaigns.empty')} icon={Megaphone} />
       ) : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">

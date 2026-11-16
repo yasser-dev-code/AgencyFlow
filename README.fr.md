@@ -93,14 +93,16 @@ cp .env.example .env
 #    Puis modifier .env : DATABASE_URL, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD.
 
 # 3. Générer le client Prisma
-npm run prisma:generate --workspace=backend
+npm run prisma:generate
 
-# 4. Créer le schéma de la base
-npm run prisma:migrate --workspace=backend
+# 4. Créer le schéma de la base (crée la base si absente + applique les migrations)
+npm run prisma:migrate
 
 # 5. Créer le compte administrateur
-npm run prisma:seed --workspace=backend
+npm run prisma:seed
 ```
+
+> Les commandes Prisma s'exécutent depuis la **racine du dépôt** et chargent le `.env` racine (elles passent `--schema backend/prisma/schema.prisma`). Cela permet de garder un seul `.env` pour tout le monorepo.
 
 ### Configuration de PostgreSQL
 
@@ -165,7 +167,7 @@ npx playwright install        # téléchargement unique des navigateurs
 npm run test:e2e
 ```
 
-> Les tests backend nécessitent un client Prisma généré (`npm run prisma:generate --workspace=backend`). Les tests API fournis n'ont pas besoin d'une base de données active.
+> Les tests backend nécessitent un client Prisma généré (`npm run prisma:generate`). Les tests API fournis n'ont pas besoin d'une base de données active.
 
 ## Build de production
 

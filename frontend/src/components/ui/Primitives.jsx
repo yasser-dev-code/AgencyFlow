@@ -45,12 +45,22 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
-export function EmptyState({ message }) {
+export function EmptyState({ message, icon: Icon, action }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+      {Icon && (
+        <div className="rounded-full bg-slate-100 p-3 text-slate-400">
+          <Icon className="h-6 w-6" />
+        </div>
+      )}
       <p className="text-sm text-slate-500">{message}</p>
+      {action}
     </div>
   );
+}
+
+export function Skeleton({ className = '' }) {
+  return <div className={`skeleton ${className}`} aria-hidden="true" />;
 }
 
 const TONES = {
@@ -97,16 +107,26 @@ export function statusTone(value) {
   }
 }
 
-export function StatCard({ label, value, icon: Icon }) {
+const STAT_ACCENTS = {
+  brand: 'bg-brand-50 text-brand-600',
+  green: 'bg-emerald-50 text-emerald-600',
+  amber: 'bg-amber-50 text-amber-600',
+  rose: 'bg-rose-50 text-rose-600',
+  sky: 'bg-sky-50 text-sky-600',
+  slate: 'bg-slate-100 text-slate-600'
+};
+
+export function StatCard({ label, value, icon: Icon, accent = 'brand', hint }) {
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-500">{label}</p>
-          <p className="mt-1 text-3xl font-bold text-slate-900">{value}</p>
+    <Card className="p-5 transition hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-slate-500">{label}</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
+          {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
         </div>
         {Icon && (
-          <div className="rounded-xl bg-brand-50 p-3 text-brand-600">
+          <div className={`shrink-0 rounded-xl p-3 ${STAT_ACCENTS[accent] || STAT_ACCENTS.brand}`}>
             <Icon className="h-6 w-6" />
           </div>
         )}

@@ -27,15 +27,43 @@
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
-      text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+      text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2
+      focus-visible:ring-brand-500 focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800;
   }
   .btn-secondary {
     @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
   }
   .btn-danger {
-    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+    @apply btn bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-md bg-slate-200/70;
+  }
+}
+
+@layer utilities {
+  .toast-enter {
+    animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter {
+    animation: none;
   }
 }

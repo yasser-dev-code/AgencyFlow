@@ -16,9 +16,11 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspace=frontend",
-    "prisma:generate": "npm run prisma:generate --workspace=backend",
-    "prisma:migrate": "npm run prisma:migrate --workspace=backend",
-    "prisma:seed": "npm run prisma:seed --workspace=backend"
+    "prisma:generate": "prisma generate --schema backend/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema backend/prisma/schema.prisma",
+    "prisma:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema backend/prisma/schema.prisma",
+    "prisma:seed": "node backend/prisma/seed.js"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Users } from 'lucide-react';
 import { clientsApi } from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { PageHeader, Button, Card, Badge, statusTone, EmptyState, Spinner } from '../components/ui/Primitives';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { Field, TextInput, Textarea, Select } from '../components/ui/Form';
@@ -13,6 +14,7 @@ const STATUSES = ['LEAD', 'ACTIVE', 'INACTIVE'];
 export default function Clients() {
   const { t } = useLanguage();
   const { isAdmin } = useAuth();
+  const toast = useToast();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -79,9 +81,12 @@ export default function Clients() {
       if (editing) await clientsApi.update(editing.id, form);
       else await clientsApi.create(form);
       setModalOpen(false);
+      toast.success(editing ? t('common.updated') : t('common.created'));
       await load();
     } catch (err) {
-      setFormError(err?.response?.data?.message || t('errors.generic'));
+      const message = err?.response?.data?.message || t('errors.generic');
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -92,9 +97,11 @@ export default function Clients() {
     try {
       await clientsApi.remove(deleteTarget.id);
       setDeleteTarget(null);
+      toast.success(t('common.deleted'));
       await load();
     } catch {
       setError(t('errors.generic'));
+      toast.error(t('errors.generic'));
     } finally {
       setDeleting(false);
     }
@@ -141,7 +148,7 @@ export default function Clients() {
           <Spinner className="h-7 w-7" />
         </div>
       ) : clients.length === 0 ? (
-        <EmptyState message={t('clients.empty')} />
+        <EmptyState message={t('clients.empty')} icon={Users} />
       ) : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
