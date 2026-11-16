@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum ClientStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(EMPLOYEE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  assignedTasks Task[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String       @id @default(cuid())
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  notes     String?
+  status    ClientStatus @default(LEAD)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  campaigns Campaign[]
+
+  @@map("clients")
+}
+
+model Campaign {
+  id        String         @id @default(cuid())
+  name      String
+  platform  String
+  budget    Float          @default(0)
+  startDate DateTime
+  endDate   DateTime
+  status    CampaignStatus @default(DRAFT)
+  clientId  String
+  client    Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  tasks     Task[]
+
+  @@index([clientId])
+  @@map("campaigns")
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus   @default(TODO)
+  priority     TaskPriority @default(MEDIUM)
+  dueDate      DateTime?
+  assignedToId String?
+  assignedTo   User?        @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  campaignId   String?
+  campaign     Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([assignedToId])
+  @@index([campaignId])
+  @@map("tasks")
+}
